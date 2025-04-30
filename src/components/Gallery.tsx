@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
 const Gallery: React.FC = () => {
   const [images, setImages] = useState<Array<{ src: string; alt: string; placeholder: string }>>([]);
   const [page, setPage] = useState(1);
 
-  const loadMoreImages = () => {
+  const loadMoreImages = useCallback(() => {
     const newImages = Array.from({ length: 6 }, (_, i) => ({
       src: `https://picsum.photos/800/600?random=${page * 6 + i}`,
       alt: `Random image ${page * 6 + i}`,
@@ -13,25 +13,25 @@ const Gallery: React.FC = () => {
     }));
     setImages(prev => [...prev, ...newImages]);
     setPage(prev => prev + 1);
-  };
+  }, [page]);
 
   useEffect(() => {
     loadMoreImages();
-  }, []);
+  }, [loadMoreImages]);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     if (
       window.innerHeight + document.documentElement.scrollTop ===
       document.documentElement.offsetHeight
     ) {
       loadMoreImages();
     }
-  };
+  }, [loadMoreImages]);
 
   useEffect(() => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, [page]);
+  }, [handleScroll]);
 
   return (
     <div className="gallery">
